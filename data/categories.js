@@ -1,52 +1,35 @@
 const categories = [
+
   {
-    id: 1,
     name: "Atta",
-    emoji: "🌾",
-    bg: "bg-yellow-100",
+    slug: "atta",
+    image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=300"
   },
 
   {
-    id: 2,
-    name: "Snacks",
-    emoji: "🍿",
-    bg: "bg-orange-100",
-  },
-
-  {
-    id: 3,
     name: "Dairy",
-    emoji: "🥛",
-    bg: "bg-blue-100",
+    slug: "dairy",
+    image: "https://images.unsplash.com/photo-1550583724-b2692b85b150?q=80&w=300"
   },
 
   {
-    id: 4,
-    name: "Cold Drinks",
-    emoji: "🥤",
-    bg: "bg-purple-100",
+    name: "Snacks",
+    slug: "snacks",
+    image: "https://images.unsplash.com/photo-1558961312-50346c099887?q=80&w=300"
   },
 
   {
-    id: 5,
-    name: "Vegetables",
-    emoji: "🥦",
-    bg: "bg-green-100",
-  },
-
-  {
-    id: 6,
-    name: "Personal Care",
-    emoji: "🧴",
-    bg: "bg-pink-100",
-  },
-
-  {
-    id: 7,
     name: "Oil",
-    emoji: "🛢️",
-    bg: "bg-amber-100",
+    slug: "oil",
+    image: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?q=80&w=300"
   },
+
+  {
+    name: "Cold Drinks",
+    slug: "cold-drinks",
+    image: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?q=80&w=300"
+  },
+
 ];
 
 export default categories;
