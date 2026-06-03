@@ -1,5 +1,6 @@
+"use client"
 import Image from "next/image";
-
+import { addToCart } from "@/lib/cart";
 export default function ProductCard({ product }) {
 
   const variant = product.variants[0];
@@ -8,6 +9,12 @@ export default function ProductCard({ product }) {
     Math.round(
       ((variant.mrp - variant.price) / variant.mrp) * 100
     );
+
+  // Handle add to cart 
+  const handleAddToCart = () => {
+addToCart(product,variant);
+
+  };
 
   return (
 
@@ -67,7 +74,7 @@ export default function ProductCard({ product }) {
         </div>
 
         {/* ADD BUTTON */}
-        <button className="bg-green-600 text-white text-sm font-semibold px-4 py-2 rounded-xl active:scale-95 transition">
+        <button onClick={handleAddToCart} className="bg-green-600 text-white text-sm font-semibold px-4 py-2 rounded-xl active:scale-95 transition">
 
           Add
 

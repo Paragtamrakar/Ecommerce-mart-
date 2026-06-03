@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import Link from "next/link";
 
@@ -11,6 +11,7 @@ import {
   Search,
   LayoutGrid,
   User,
+  X,
 } from "lucide-react";
 
 import products from "@/data/products";
@@ -19,12 +20,89 @@ export default function Navbar() {
 
   // SEARCH STATE
   const [search, setSearch] = useState("");
+  // TYPEWRITER STATES
+  const [placeholder, setPlaceholder] = useState("");
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // TYPEWRITER PLACEHOLDER DATA
+  const suggestions = [
+    "Amul Taaza Milk",
+    "Aashirvaad Atta",
+    "Maggi 2-Minute Noodles",
+    "Coca-Cola",
+    "Fortune Sunflower Oil",
+    "Lay's Magic Masala",
+  ];
+
+  // TYPEWRITER EFFECT
+  useEffect(() => {
+    const currentWord = suggestions[currentIndex];
+
+    const timeout = setTimeout(() => {
+
+      if (!isDeleting) {
+
+        setPlaceholder(
+          currentWord.substring(
+            0,
+            placeholder.length + 1
+          )
+        );
+
+        if (placeholder === currentWord) {
+
+          setTimeout(() => {
+            setIsDeleting(true);
+          }, 1500);
+
+        }
+
+      } else {
+
+        setPlaceholder(
+          currentWord.substring(
+            0,
+            placeholder.length - 1
+          )
+        );
+
+        if (placeholder === "") {
+
+          setIsDeleting(false);
+
+          setCurrentIndex(
+            (prev) =>
+              (prev + 1) %
+              suggestions.length
+          );
+
+        }
+
+      }
+
+    }, isDeleting ? 40 : 90);
+
+    return () => clearTimeout(timeout);
+
+  }, [
+    placeholder,
+    isDeleting,
+    currentIndex,
+  ]);
+
+
 
   // FILTER PRODUCTS
-  const filteredProducts = products.filter((product) =>
-    product.name
-      .toLowerCase()
-      .includes(search.toLowerCase())
+  const filteredProducts = products.filter(
+    (product) =>
+      product.name
+        .toLowerCase()
+        .includes(search.toLowerCase()) ||
+
+      product.category.name
+        .toLowerCase()
+        .includes(search.toLowerCase())
   );
 
   return (
@@ -108,22 +186,42 @@ export default function Navbar() {
 
             <input
               type="text"
-              placeholder="Search atta, milk, snacks..."
+
+              placeholder={
+                search
+                  ? ""
+                  : `Search ${placeholder}`
+              }
+
               value={search}
+
               onChange={(e) =>
                 setSearch(e.target.value)
               }
-              className="w-full h-12 rounded-2xl border border-gray-200 bg-gray-50 pl-11 pr-4 text-sm outline-none focus:border-green-500 focus:bg-white focus:shadow-[0_0_0_4px_rgba(34,197,94,0.12)] transition-all duration-300"
+
+              className="w-full h-12 rounded-2xl border border-gray-200 bg-gray-50 pl-11 pr-10 text-sm outline-none focus:border-green-500 focus:bg-white focus:shadow-[0_0_0_4px_rgba(34,197,94,0.12)] transition-all duration-300"
             />
 
+            {/* CLEAR BUTTON */}
+            {search && (
 
+              <button
+                onClick={() => setSearch("")}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition"
+              >
+
+                <X size={16} />
+
+              </button>
+
+            )}
 
 
 
             {/* SEARCH DROPDOWN */}
             {search.length > 0 && (
 
-              <div className="absolute top-14 left-0 right-0 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-50">
+              <div className="absolute top-14 left-0 right-0 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden max-h-80 overflow-y-auto z-50">
 
                 {filteredProducts.length > 0 ? (
 
