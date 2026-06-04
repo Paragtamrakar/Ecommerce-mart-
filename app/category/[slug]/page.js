@@ -2,6 +2,8 @@
 
 import products from "@/data/products";
 import ProductCard from "@/Components/Product/ProductCard";
+import Navbar from "@/Components/Navbar";
+import CartWrapper from "@/Components/Cart/CartWrapper";
 
 export default async function CategoryPage({ params }) {
 
@@ -16,6 +18,7 @@ export default async function CategoryPage({ params }) {
   return (
 
     <div className="p-4 min-h-screen bg-slate-50">
+      <Navbar />
 
       {/* CATEGORY TITLE */}
       <h1 className="text-2xl font-bold mb-5 capitalize">
@@ -54,7 +57,7 @@ export default async function CategoryPage({ params }) {
         </div>
 
       )}
-
+      <CartWrapper />
     </div>
 
   );

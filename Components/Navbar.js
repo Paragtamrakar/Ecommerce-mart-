@@ -25,6 +25,7 @@ export default function Navbar() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
 
+
   // TYPEWRITER PLACEHOLDER DATA
   const suggestions = [
     "Amul Taaza Milk",
@@ -34,6 +35,8 @@ export default function Navbar() {
     "Fortune Sunflower Oil",
     "Lay's Magic Masala",
   ];
+
+
 
   // TYPEWRITER EFFECT
   useEffect(() => {
@@ -123,9 +126,9 @@ export default function Navbar() {
               {/* LOGO */}
               <div className="w-11 h-11 rounded-2xl bg-green-600 flex items-center justify-center shadow-md">
 
-                <span className="text-white font-bold text-lg">
+                <a href="/" className="text-white font-bold text-lg">
                   OG
-                </span>
+                </a>
 
               </div>
 
