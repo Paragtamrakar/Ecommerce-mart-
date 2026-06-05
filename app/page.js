@@ -30,6 +30,7 @@ export default function Home() {
       <Navbar
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
+        showSearch={true}
       />
 
       <section className="mt-4 px-4">

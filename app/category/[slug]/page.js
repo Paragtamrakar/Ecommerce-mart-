@@ -18,7 +18,7 @@ export default async function CategoryPage({ params }) {
   return (
 
     <div className="p-4 min-h-screen bg-slate-50">
-      <Navbar />
+<Navbar showSearch={false} />
 
       {/* CATEGORY TITLE */}
       <h1 className="text-2xl font-bold mb-5 capitalize">
