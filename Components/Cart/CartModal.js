@@ -178,58 +178,57 @@ export default function CartModal({
 
         };
 
-    const handlePlaceOrder =
-        async () => {
+    const handlePlaceOrder = async () => {
 
-            const error =
-                validateOrderDetails();
+        const error = validateOrderDetails();
 
-            if (error) {
-                alert(error);
-                return;
-            }
+        if (error) {
+            alert(error);
+            return;
+        }
+
+        try {
 
             const orderData = {
-                items: cart,
-                totalPrice,
-                customer: {
-                    ...userDetails,
-                    email:
-                        session?.user
-                            ?.email,
+                user: {
+                    name: userDetails.name,
+                    phone: userDetails.phone,
+                    address: userDetails.address,
                 },
+
+                items: cart,
+                totalAmount: totalPrice,
+                paymentType: "COD",
             };
 
-            console.log(
-                "Order Data:",
-                orderData
-            );
+            const res = await fetch("/api/orders", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(orderData),
+            });
 
-            /*
-            Future API Call
+            const data = await res.json();
 
-            try {
-
-                const res = await fetch(
-                    "/api/orders",
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type":
-                                "application/json",
-                        },
-                        body:
-                            JSON.stringify(
-                                orderData
-                            ),
-                    }
-                );
-
-            } catch (error) {
-                console.error(error);
+            if (!res.ok) {
+                throw new Error(data.message);
             }
-            */
-        };
+
+            alert("Order Placed Successfully ✅");
+
+            localStorage.removeItem("cart");
+            setCart([]);
+
+            onClose();
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert(error.message || "Failed to place order");
+        }
+    };
 
     const totalPrice =
         cart.reduce(
@@ -361,76 +360,89 @@ export default function CartModal({
 
                         {/* {session && ( */}
 
-                            <div className="space-y-3 mb-4">
+                        <input
+                            type="text"
+                            placeholder="Full Name"
+                            value={userDetails.name}
+                            onChange={(e) =>
+                                setUserDetails((prev) => ({
+                                    ...prev,
+                                    name: e.target.value,
+                                }))
+                            }
+                            className="w-full mb-4 border rounded-lg p-3"
+                        />
 
-                                <input
-                                    type="tel"
-                                    placeholder="Phone Number"
-                                    value={
-                                        userDetails.phone
-                                    }
-                                    onChange={(
-                                        e
-                                    ) =>
-                                        setUserDetails(
-                                            (
-                                                prev
-                                            ) => ({
-                                                ...prev,
-                                                phone:
-                                                    e
-                                                        .target
-                                                        .value,
-                                            })
-                                        )
-                                    }
-                                    className="w-full border rounded-lg p-3"
-                                />
+                        <div className="space-y-3 mb-4">
 
-                                <textarea
-                                    placeholder="Delivery Address"
-                                    value={
-                                        userDetails.address
-                                    }
-                                    onChange={(
-                                        e
-                                    ) =>
-                                        setUserDetails(
-                                            (
-                                                prev
-                                            ) => ({
-                                                ...prev,
-                                                address:
-                                                    e
-                                                        .target
-                                                        .value,
-                                            })
-                                        )
-                                    }
-                                    className="w-full border rounded-lg p-3"
-                                    rows={
-                                        3
-                                    }
-                                />
+                            <input
+                                type="tel"
+                                placeholder="Phone Number"
+                                value={
+                                    userDetails.phone
+                                }
+                                onChange={(
+                                    e
+                                ) =>
+                                    setUserDetails(
+                                        (
+                                            prev
+                                        ) => ({
+                                            ...prev,
+                                            phone:
+                                                e
+                                                    .target
+                                                    .value,
+                                        })
+                                    )
+                                }
+                                className="w-full border rounded-lg p-3"
+                            />
 
-                            </div>
+                            <textarea
+                                placeholder="Delivery Address"
+                                value={
+                                    userDetails.address
+                                }
+                                onChange={(
+                                    e
+                                ) =>
+                                    setUserDetails(
+                                        (
+                                            prev
+                                        ) => ({
+                                            ...prev,
+                                            address:
+                                                e
+                                                    .target
+                                                    .value,
+                                        })
+                                    )
+                                }
+                                className="w-full border rounded-lg p-3"
+                                rows={
+                                    3
+                                }
+                            />
+
+                        </div>
 
                         {/* )} */}
 
                         {/* {session ? ( */}
 
-                            <button
-                                onClick={
-                                    handlePlaceOrder
-                                }
-                                className="w-full bg-green-600 text-white py-3 rounded-xl font-semibold"
-                            >
-                                Place Order
-                            </button>
+                        <button
+                            onClick={
+                                handlePlaceOrder
+                            }
+                            className="w-full bg-green-600 text-white py-3 rounded-xl font-semibold"
+                        >
+                            Place Order
+                        </button>
 
                         {/* ) : ( */}
 
-                            {/* <button
+                        {/* <button
                                 onClick={() =>
                                     signIn(
                                         "google"
