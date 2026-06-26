@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { useSession, signIn } from "next-auth/react";
+import SuccessModal from "../Modals/SuccessModal";
 
 export default function CartModal({
     show,
@@ -20,6 +21,8 @@ export default function CartModal({
             address: "",
         });
 
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [isPlacingOrder, setIsPlacingOrder] = useState(false);
     const [isLoadingUser, setIsLoadingUser] =
         useState(false);
 
@@ -187,6 +190,8 @@ export default function CartModal({
             return;
         }
 
+        setIsPlacingOrder(true);
+
         try {
 
             const orderData = {
@@ -196,7 +201,13 @@ export default function CartModal({
                     address: userDetails.address,
                 },
 
-                items: cart,
+                items: cart.map((item) => ({
+                    productId: item._id,
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity,
+                })),
+
                 totalAmount: totalPrice,
                 paymentType: "COD",
             };
@@ -215,18 +226,21 @@ export default function CartModal({
                 throw new Error(data.message);
             }
 
-            alert("Order Placed Successfully ✅");
-
             localStorage.removeItem("cart");
             setCart([]);
+            window.dispatchEvent(new Event("cartUpdated"));
 
-            onClose();
+            setShowSuccess(true);
 
         } catch (error) {
 
             console.error(error);
-
             alert(error.message || "Failed to place order");
+
+        } finally {
+
+            setIsPlacingOrder(false);
+
         }
     };
 
@@ -241,8 +255,24 @@ export default function CartModal({
 
     if (!show) return null;
 
+    if (showSuccess) {
+    return (
+        <SuccessModal
+            isOpen={true}
+            title="Order Placed!"
+            message="Your order has been sent to the restaurant."
+            buttonText="Continue"
+            onClose={() => {
+                setShowSuccess(false);
+                onClose();
+            }}
+        />
+    );
+}
+
     return (
         <div className="fixed inset-0 z-[999] bg-black/40 flex items-end md:items-center justify-center">
+            
 
             <div className="bg-white w-full md:max-w-md rounded-t-3xl md:rounded-3xl max-h-[80vh] overflow-y-auto">
 
@@ -432,12 +462,18 @@ export default function CartModal({
                         {/* {session ? ( */}
 
                         <button
-                            onClick={
-                                handlePlaceOrder
-                            }
-                            className="w-full bg-green-600 text-white py-3 rounded-xl font-semibold"
+                            onClick={handlePlaceOrder}
+                            disabled={isPlacingOrder}
+                            className="w-full bg-green-600 text-white py-3 rounded-xl font-semibold disabled:opacity-70 disabled:cursor-not-allowed"
                         >
-                            Place Order
+                            {isPlacingOrder ? (
+                                <div className="flex items-center justify-center gap-2">
+                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    <span>Placing Order...</span>
+                                </div>
+                            ) : (
+                                "Place Order"
+                            )}
                         </button>
 
                         {/* ) : ( */}
@@ -460,8 +496,10 @@ export default function CartModal({
                 )}
 
             </div>
+          
 
         </div>
+        
     );
 }
 
