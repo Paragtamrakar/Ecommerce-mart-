@@ -2,6 +2,36 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/dbConnect";
 import Order from "@/models/Order";
 
+// This call fetches the data 
+export async function GET() {
+    try {
+        await dbConnect();
+
+        const orders = await Order.find()
+            .sort({ createdAt: -1 });
+
+        return NextResponse.json(
+            {
+                success: true,
+                orders,
+            },
+            { status: 200 }
+        );
+    } catch (error) {
+        console.error(error);
+
+        return NextResponse.json(
+            {
+                success: false,
+                message: "Internal Server Error",
+            },
+            { status: 500 }
+        );
+    }
+}
+
+
+// This function creates orders 
 export async function POST(request) {
     try {
         await dbConnect();
