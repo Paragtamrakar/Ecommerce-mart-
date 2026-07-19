@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/dbConnect";
 import Order from "@/models/Order";
 
+
 // This call fetches the data 
 export async function GET() {
     try {
@@ -81,6 +82,11 @@ export async function POST(request) {
             // orderNumber,
             orderCode,
         });
+       
+        // socket.IO
+        if (global.io) {
+  global.io.emit("new-order", order);
+}
 
         return NextResponse.json(
             {
@@ -89,6 +95,7 @@ export async function POST(request) {
                 order,
             },
             { status: 201 }
+            
         );
     } catch (error) {
         console.error(error);
