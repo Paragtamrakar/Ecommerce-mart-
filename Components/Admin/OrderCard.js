@@ -13,38 +13,48 @@ import {
     IndianRupee,
     CreditCard,
 } from "lucide-react";
+import CountdownTimer from "./CountDownTimer";
 
 
-export default function OrderCard({ order, handleStatusUpdate }) {
+export default function OrderCard({
+    order,
+    handleStatusUpdate,
+    deliveryPartners,
+    selectedDelivery,
+    setSelectedDelivery,
+    handleAssignDelivery,
+}) {
 
-const statusConfig = {
-    pending: {
-        label: "Pending",
-        className: "bg-amber-100 text-amber-700 border border-amber-200",
-    },
-    confirmed: {
-        label: "Confirmed",
-        className: "bg-green-100 text-green-700 border border-green-200",
-    },
-    packing: {
-        label: "Packing",
-        className: "bg-blue-100 text-blue-700 border border-blue-200",
-    },
-    "out-for-delivery": {
-        label: "Out for Delivery",
-        className: "bg-purple-100 text-purple-700 border border-purple-200",
-    },
-    delivered: {
-        label: "Delivered",
-        className: "bg-emerald-100 text-emerald-700 border border-emerald-200",
-    },
-    cancelled: {
-        label: "Cancelled",
-        className: "bg-red-100 text-red-700 border border-red-200",
-    },
-};
+    const statusConfig = {
+        pending: {
+            label: "Pending",
+            className: "bg-amber-100 text-amber-700 border border-amber-200",
+        },
+        confirmed: {
+            label: "Confirmed",
+            className: "bg-green-100 text-green-700 border border-green-200",
+        },
+        packing: {
+            label: "Packing",
+            className: "bg-blue-100 text-blue-700 border border-blue-200",
+        },
+        "out-for-delivery": {
+            label: "Out for Delivery",
+            className: "bg-purple-100 text-purple-700 border border-purple-200",
+        },
+        delivered: {
+            label: "Delivered",
+            className: "bg-emerald-100 text-emerald-700 border border-emerald-200",
+        },
+        cancelled: {
+            label: "Cancelled",
+            className: "bg-red-100 text-red-700 border border-red-200",
+        },
+    };
 
-const status = statusConfig[order.status];
+    const status = statusConfig[order.status];
+
+
 
     return (
         <div className="bg-white rounded-3xl border border-gray-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
@@ -69,17 +79,31 @@ const status = statusConfig[order.status];
                     </div>
                 </div>
 
-                <div className="text-right">
-                    <span
-                        className={`inline-block px-4 py-2 rounded-full text-sm font-semibold ${status.className}`}
-                    >
-                        {status.label}
-                    </span>
+                {/* // CountDownTimer */}
+                <div className="flex items-center gap-4">
 
-                    <div className="mt-3 flex items-center justify-end gap-1 text-2xl font-bold">
-                        <IndianRupee size={20} />
-                        {order.totalAmount}
+                    {order.status === "pending" && (
+                        <CountdownTimer
+                            createdAt={order.createdAt}
+                            size="compact"
+                        />
+                    )}
+
+                    <div className="text-right">
+
+                        <span
+                            className={`inline-block px-4 py-2 rounded-full text-sm font-semibold ${status.className}`}
+                        >
+                            {status.label}
+                        </span>
+
+                        <div className="mt-3 flex items-center justify-end gap-1 text-2xl font-bold">
+                            <IndianRupee size={20} />
+                            {order.totalAmount}
+                        </div>
+
                     </div>
+
                 </div>
             </div>
 
@@ -195,9 +219,7 @@ const status = statusConfig[order.status];
             </div>
 
             {/* Footer */}
-
             {order.status === "pending" && (
-
                 <div className="border-t bg-gray-50 p-5 flex flex-col sm:flex-row gap-4">
 
                     <button
@@ -221,7 +243,64 @@ const status = statusConfig[order.status];
                     </button>
 
                 </div>
+            )}
 
+            {order.status === "confirmed" && !order.deliveryPartner?.name && (
+                <div className="border-t bg-gray-50 p-5 space-y-4">
+
+                    <h3 className="font-semibold text-lg">
+                        🚚 Assign Delivery Partner
+                    </h3>
+
+                    <select
+                        value={selectedDelivery[order._id] || ""}
+                        onChange={(e) =>
+                            setSelectedDelivery((prev) => ({
+                                ...prev,
+                                [order._id]: e.target.value,
+                            }))
+                        }
+                        className="w-full border rounded-xl px-4 py-3"
+                    >
+                        <option value="">
+                            Select Delivery Partner
+                        </option>
+
+                        {deliveryPartners.map((partner) => (
+                            <option
+                                key={partner.id}
+                                value={partner.id}
+                            >
+                                {partner.name}
+                            </option>
+                        ))}
+                    </select>
+
+                    <button
+                        onClick={() => handleAssignDelivery(order._id)}
+                        className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-xl py-3 font-semibold"
+                    >
+                        Assign Partner
+                    </button>
+
+                </div>
+            )}
+            {order.deliveryPartner?.name && (
+                <div className="border-t bg-purple-50 p-5">
+
+                    <h3 className="font-semibold text-lg mb-3">
+                        🚚 Delivery Partner
+                    </h3>
+
+                    <p>
+                        <strong>Name:</strong> {order.deliveryPartner.name}
+                    </p>
+
+                    <p>
+                        <strong>Phone:</strong> {order.deliveryPartner.phone}
+                    </p>
+
+                </div>
             )}
 
         </div>

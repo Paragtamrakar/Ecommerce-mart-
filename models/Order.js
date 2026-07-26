@@ -44,6 +44,7 @@ const OrderSchema = new mongoose.Schema(
     //   index: true,
     // },
 
+
     // Delivery Verification Code
     orderCode: {
       type: String,
@@ -72,7 +73,7 @@ const OrderSchema = new mongoose.Schema(
     items: [
       {
         productId: {
-          type: String ,
+          type: String,
           ref: "Product",
         },
 
@@ -110,6 +111,23 @@ const OrderSchema = new mongoose.Schema(
         "cancelled",
       ],
       default: "pending",
+    },
+
+    deliveryPartner: {
+      id: {
+        type: String,
+        default: "",
+      },
+
+      name: {
+        type: String,
+        default: "",
+      },
+
+      phone: {
+        type: String,
+        default: "",
+      },
     },
 
     paymentType: {

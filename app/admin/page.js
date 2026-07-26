@@ -4,30 +4,32 @@
 import { useEffect, useState } from "react";
 import OrderCard from "@/Components/Admin/OrderCard";
 import { socket } from "@/lib/socket";
+import deliveryPartners from "@/data/deliveryPartners";
 
 export default function AdminPage() {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selectedDelivery, setSelectedDelivery] = useState({});
 
-  useEffect(() => {
-  socket.connect();
+    useEffect(() => {
+        socket.connect();
 
-  socket.on("connect", () => {
-    console.log("✅ Connected :", socket.id);
-  });
+        socket.on("connect", () => {
+            console.log("✅ Connected :", socket.id);
+        });
 
-  socket.on("new-order", (newOrder) => {
-    console.log("🆕 New Order:", newOrder);
+        socket.on("new-order", (newOrder) => {
+            console.log("🆕 New Order:", newOrder);
 
-    setOrders((prev) => [newOrder, ...prev]);
-  });
+            setOrders((prev) => [newOrder, ...prev]);
+        });
 
-  return () => {
-    socket.off("connect");
-    socket.off("new-order");
-    socket.disconnect();
-  };
-}, []);
+        return () => {
+            socket.off("connect");
+            socket.off("new-order");
+            socket.disconnect();
+        };
+    }, []);
 
     useEffect(() => {
         fetchOrders();
@@ -65,6 +67,36 @@ export default function AdminPage() {
             }
         } catch (error) {
             console.log(error);
+        }
+    };
+
+    const handleAssignDelivery = async (orderId) => {
+        const partnerId = selectedDelivery[orderId];
+
+        if (!partnerId) {
+            alert("Please select a delivery partner");
+            return;
+        }
+
+        const partner = deliveryPartners.find(
+            (p) => p.id === partnerId
+        );
+
+        const res = await fetch(`/api/orders/${orderId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                status: "out-for-delivery",
+                deliveryPartner: partner,
+            }),
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            fetchOrders();
         }
     };
 
@@ -106,6 +138,10 @@ export default function AdminPage() {
                                 key={order._id}
                                 order={order}
                                 handleStatusUpdate={handleStatusUpdate}
+                                deliveryPartners={deliveryPartners}
+                                selectedDelivery={selectedDelivery}
+                                setSelectedDelivery={setSelectedDelivery}
+                                handleAssignDelivery={handleAssignDelivery}
                             />
                         ))}
                     </div>

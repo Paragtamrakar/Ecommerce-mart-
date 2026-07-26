@@ -1,4 +1,4 @@
-// This code is for changing the status for orders
+// This code is for changing the status and add delivery partners for orders
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/dbConnect";
 import Order from "@/models/Order";
@@ -8,7 +8,7 @@ export async function PUT(request, { params }) {
         await dbConnect();
 
         const { id } = await params;
-        const { status } = await request.json();
+        const { status, deliveryPartner } = await request.json();
 
         const allowedStatus = [
             "confirmed",
@@ -18,19 +18,28 @@ export async function PUT(request, { params }) {
             "delivered",
         ];
 
-        if (!allowedStatus.includes(status)) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: "Invalid Status",
-                },
-                { status: 400 }
-            );
+        const updateData = {};
+
+        if (status) {
+            if (!allowedStatus.includes(status)) {
+                return NextResponse.json(
+                    {
+                        success: false,
+                        message: "Invalid Status",
+                    },
+                    { status: 400 }
+                );
+            }
+
+            updateData.status = status;
         }
 
+        if (deliveryPartner) {
+            updateData.deliveryPartner = deliveryPartner;
+        }
         const order = await Order.findByIdAndUpdate(
             id,
-            { status },
+            updateData,
             { new: true }
         );
 
