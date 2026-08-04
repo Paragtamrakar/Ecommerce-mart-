@@ -24,9 +24,21 @@ export default function AdminPage() {
             setOrders((prev) => [newOrder, ...prev]);
         });
 
+        socket.on("orderUpdated", (updatedOrder) => {
+            console.log("🔄 Updated Order:", updatedOrder);
+
+            setOrders((prevOrders) =>
+                prevOrders.map((order) =>
+                    order._id === updatedOrder._id
+                        ? updatedOrder
+                        : order
+                )
+            );
+        });
         return () => {
             socket.off("connect");
             socket.off("new-order");
+            socket.off("orderUpdated");
             socket.disconnect();
         };
     }, []);
@@ -62,9 +74,7 @@ export default function AdminPage() {
 
             const data = await res.json();
 
-            if (data.success) {
-                fetchOrders(); // Refresh orders
-            }
+            
         } catch (error) {
             console.log(error);
         }
@@ -95,9 +105,9 @@ export default function AdminPage() {
 
         const data = await res.json();
 
-        if (data.success) {
-            fetchOrders();
-        }
+        // if (data.success) {
+        //     fetchOrders();
+        // }
     };
 
     if (loading) {

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/dbConnect";
 import Order from "@/models/Order";
 
+
 export async function PUT(request, { params }) {
     try {
         await dbConnect();
@@ -51,6 +52,10 @@ export async function PUT(request, { params }) {
                 },
                 { status: 404 }
             );
+        }
+
+        if (global.io) {
+            global.io.emit("orderUpdated", order)
         }
 
         return NextResponse.json(
