@@ -103,11 +103,7 @@ export default function AdminPage() {
             }),
         });
 
-        const data = await res.json();
-
-        // if (data.success) {
-        //     fetchOrders();
-        // }
+        
     };
 
     if (loading) {
