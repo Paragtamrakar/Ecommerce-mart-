@@ -33,6 +33,7 @@ export async function GET() {
 
 
 // This function creates orders 
+
 export async function POST(request) {
     try {
         await dbConnect();
@@ -46,27 +47,26 @@ export async function POST(request) {
             paymentType,
         } = body;
 
-        // Basic Validation
         if (
             !user?.name ||
             !user?.phone ||
             !user?.address ||
-            !items?.length ||
-            !totalAmount
+            !Array.isArray(items) ||
+            items.length === 0 ||
+            typeof totalAmount !== "number" ||
+            totalAmount <= 0
         ) {
             return NextResponse.json(
                 {
                     success: false,
-                    message: "Missing required fields",
+                    message: "Invalid or missing order fields",
                 },
                 { status: 400 }
             );
         }
 
-        // Generate Order Number
         const orderNumber = `OGM-${Date.now()}`;
 
-        // Generate 6 Digit Order Code
         const orderCode = Math.floor(
             100000 + Math.random() * 900000
         ).toString();
@@ -74,31 +74,49 @@ export async function POST(request) {
         const order = await Order.create({
             user,
             items,
-         totalAmount,
-            // deliveryPhone,
-            // deliveryAddress,
+            totalAmount,
             paymentType: paymentType || "COD",
-
-            // orderNumber,
+            orderNumber,
             orderCode,
         });
-       
-        // socket.IO
-        if (global.io) {
-  global.io.emit("new-order", order);
-}
 
-        return NextResponse.json(
+        // Notify the admin dashboard via Socket.IO.
+        if (global.io) {
+            global.io.emit("new-order", order);
+        }
+
+        // Respond to the customer without waiting for WhatsApp.
+        // A WhatsApp failure must not undo the saved order.
+        const response = NextResponse.json(
             {
                 success: true,
                 message: "Order Placed Successfully",
                 order,
             },
             { status: 201 }
-            
         );
+
+        // Send WhatsApp asynchronously on the server.
+        const { sendWhatsAppTemplate } = await import("@/lib/whatsapp");
+
+        sendWhatsAppTemplate({
+            to: user.phone,
+            templateName: "og_mart_01",
+            params: [
+                user.name,
+                order.orderNumber || order.orderCode,
+                Number(totalAmount).toFixed(2),
+            ],
+        }).catch((error) => {
+            console.error("Order WhatsApp notification failed:", {
+                orderId: String(order._id),
+                error: error.message,
+            });
+        });
+
+        return response;
     } catch (error) {
-        console.error(error);
+        console.error("Order creation failed:", error);
 
         return NextResponse.json(
             {

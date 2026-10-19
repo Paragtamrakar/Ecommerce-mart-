@@ -37,12 +37,12 @@ const OrderSchema = new mongoose.Schema(
     },
 
     // Future Serial Number (OGM-1001)
-    // orderNumber: {
-    //   type: String,
-    //   required: true,
-    //   unique: true,
-    //   index: true,
-    // },
+    orderNumber: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true,
+    },
 
 
     // Delivery Verification Code
