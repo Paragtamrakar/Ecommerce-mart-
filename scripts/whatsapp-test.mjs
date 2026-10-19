@@ -14,6 +14,7 @@ try {
   const result = await sendWhatsAppTemplate({
     to,
     templateName: "og_mart_01",
+    language: "en",
     params: [
       "Test Customer",
       "OGM-TEST-001",
