@@ -74,7 +74,7 @@ export default function AdminPage() {
 
             const data = await res.json();
 
-            
+
         } catch (error) {
             console.log(error);
         }
@@ -103,7 +103,7 @@ export default function AdminPage() {
             }),
         });
 
-        
+
     };
 
     if (loading) {
