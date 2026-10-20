@@ -62,6 +62,7 @@ export default function AdminPage() {
         }
     };
 
+
     const handleStatusUpdate = async (id, status) => {
         try {
             const res = await fetch(`/api/orders/${id}`, {
@@ -74,9 +75,25 @@ export default function AdminPage() {
 
             const data = await res.json();
 
+            if (!res.ok || !data.success) {
+                throw new Error(
+                    data.message || "Failed to update order"
+                );
+            }
 
+            // Update this dashboard from the confirmed API response.
+            setOrders((prevOrders) =>
+                prevOrders.map((order) =>
+                    String(order._id) === String(data.order._id)
+                        ? data.order
+                        : order
+                )
+            );
+
+            console.log("Order status updated:", data.order.status);
         } catch (error) {
-            console.log(error);
+            console.error("Status update failed:", error);
+            alert(error.message || "Could not update order");
         }
     };
 
@@ -92,19 +109,46 @@ export default function AdminPage() {
             (p) => p.id === partnerId
         );
 
-        const res = await fetch(`/api/orders/${orderId}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                status: "out-for-delivery",
-                deliveryPartner: partner,
-            }),
-        });
+        if (!partner) {
+            alert("Invalid delivery partner");
+            return;
+        }
 
+        try {
+            const res = await fetch(`/api/orders/${orderId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    status: "out-for-delivery",
+                    deliveryPartner: partner,
+                }),
+            });
 
+            const data = await res.json();
+
+            if (!res.ok || !data.success) {
+                throw new Error(
+                    data.message || "Failed to assign delivery partner"
+                );
+            }
+
+            setOrders((prevOrders) =>
+                prevOrders.map((order) =>
+                    String(order._id) === String(data.order._id)
+                        ? data.order
+                        : order
+                )
+            );
+
+            console.log("Delivery partner assigned:", data.order._id);
+        } catch (error) {
+            console.error("Delivery assignment failed:", error);
+            alert(error.message || "Could not assign delivery partner");
+        }
     };
+
 
     if (loading) {
         return <h1 className="p-8 text-xl">Loading...</h1>;
